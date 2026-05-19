@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Dev Card</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Download -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+</head>
+<body>
+
+    <div class="bg1"></div>
+    <div class="bg2"></div>
+
+    <div class="container">
+
+        <h1>
+            GitHub Dev Card
+        </h1>
+
+        <p class="subtitle">
+            Generate beautiful developer cards instantly
+        </p>
+
+        <div class="search-box">
+
+            <div class="input-box">
+
+                <span>@</span>
+
+                <input
+                    type="text"
+                    id="username"
+                    placeholder="Enter GitHub username">
+
+            </div>
+
+            <button onclick="generateCard()">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                Generate
+            </button>
+
+        </div>
+
+        <div id="card"></div>
+
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
