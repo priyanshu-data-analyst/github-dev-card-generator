@@ -176,7 +176,7 @@ async function generateCard() {
 
             <div class="stats">
 
-                <<a 
+                <a 
                 href="${data.profile_url}?tab=repositories"
                 target="_blank"
                 style="text-decoration:none;color:white;flex:1;"
