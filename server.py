@@ -4,7 +4,7 @@ import requests
 
 app = FastAPI()
 
-# Allow frontend to connect
+# CORS FIX
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -13,10 +13,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# HOME ROUTE
 @app.get("/")
 def home():
     return {"message": "GitHub Card Backend Running"}
 
+# GITHUB USER API
 @app.get("/github/{username}")
 def get_github_user(username: str):
 
