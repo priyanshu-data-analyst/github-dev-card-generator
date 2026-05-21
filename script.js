@@ -23,13 +23,13 @@ async function generateCard() {
 
         // USER PROFILE
         const response =
-        await fetch(`https://github-dev-card-generator.onrender.com/github/${username}`);
+        await fetch(`http://127.0.0.1:8000/github/${username}`);
 
         const data = await response.json();
 
         // REPOSITORIES
         const repoResponse =
-        await fetch(`https://github-dev-card-generator.onrender.com/repos/${username}`);
+        await fetch(`https://api.github.com/users/${username}/repos`);
 
         const repoData = await repoResponse.json();
 
@@ -38,7 +38,7 @@ async function generateCard() {
 
             card.innerHTML = `
                 <h2 style="text-align:center;">
-                    Backend sleeping. Wait 30 seconds and try again.
+                    User Not Found
                 </h2>
             `;
 
@@ -48,27 +48,23 @@ async function generateCard() {
         // LANGUAGE CALCULATION
         let languageCount = {};
 
-        if(Array.isArray(repoData)){
+        repoData.forEach(repo => {
 
-            repoData.forEach(repo => {
+            if(repo.language){
 
-                if(repo.language){
+                if(languageCount[repo.language]){
 
-                    if(languageCount[repo.language]){
+                    languageCount[repo.language]++;
 
-                        languageCount[repo.language]++;
+                }else{
 
-                    }else{
-
-                        languageCount[repo.language] = 1;
-
-                    }
+                    languageCount[repo.language] = 1;
 
                 }
 
-            });
+            }
 
-        }
+        });
 
         const totalLanguages =
         Object.values(languageCount)
@@ -111,50 +107,46 @@ async function generateCard() {
         // TOP REPOS
         let repoHTML = "";
 
-        if(Array.isArray(repoData)){
+        repoData
+        .sort((a,b) =>
+            b.stargazers_count - a.stargazers_count
+        )
+        .slice(0,5)
+        .forEach(repo => {
 
-            repoData
-            .sort((a,b) =>
-                b.stargazers_count - a.stargazers_count
-            )
-            .slice(0,5)
-            .forEach(repo => {
+            repoHTML += `
 
-                repoHTML += `
+            <div class="repo-card">
 
-                <div class="repo-card">
+                <a href="${repo.html_url}" target="_blank">
 
-                    <a href="${repo.html_url}" target="_blank">
+                    <i class="fa-solid fa-code-branch"></i>
 
-                        <i class="fa-solid fa-code-branch"></i>
+                    ${repo.name}
 
-                        ${repo.name}
+                </a>
 
-                    </a>
+                <p>
+                    ${repo.description || "No description"}
+                </p>
 
-                    <p>
-                        ${repo.description || "No description"}
-                    </p>
+                <p style="margin-top:10px;color:#58a6ff;">
 
-                    <p style="margin-top:10px;color:#58a6ff;">
+                    <i class="fa-solid fa-star"></i>
+                    ${repo.stargazers_count}
 
-                        <i class="fa-solid fa-star"></i>
-                        ${repo.stargazers_count}
+                    &nbsp;&nbsp;
 
-                        &nbsp;&nbsp;
+                    <i class="fa-solid fa-code"></i>
+                    ${repo.language || "Unknown"}
 
-                        <i class="fa-solid fa-code"></i>
-                        ${repo.language || "Unknown"}
+                </p>
 
-                    </p>
+            </div>
 
-                </div>
+            `;
 
-                `;
-
-            });
-
-        }
+        });
 
         // FINAL CARD
         card.innerHTML = `
@@ -276,7 +268,7 @@ async function generateCard() {
 
         document.getElementById("card").innerHTML = `
             <h2 style="text-align:center;">
-                Backend Error. Render server may be sleeping.
+                Backend Error
             </h2>
         `;
 
