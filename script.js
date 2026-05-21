@@ -25,7 +25,18 @@ async function generateCard() {
         const response =
         await fetch(`http://127.0.0.1:8000/github/${username}`);
 
-        const data = await response.json();
+        if (!response.ok) {
+
+    card.innerHTML = `
+        <h2 style="text-align:center;">
+            Backend Starting... Try Again
+        </h2>
+    `;
+
+    return;
+}
+
+const data = await response.json();
 
         // REPOSITORIES
         const repoResponse =
