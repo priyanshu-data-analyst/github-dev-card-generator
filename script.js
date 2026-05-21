@@ -3,57 +3,72 @@ async function generateCard() {
     try {
 
         const username =
-        document.getElementById("username").value;
+        document.getElementById("username").value.trim();
+
+        if(!username){
+
+            alert("Enter GitHub username");
+            return;
+
+        }
+
+        const card =
+        document.getElementById("card");
+
+        card.innerHTML = `
+            <h2 style="text-align:center;">
+                Loading...
+            </h2>
+        `;
 
         // USER PROFILE
         const response =
-        await fetch(`http://127.0.0.1:8080/github/${username}`);
+        await fetch(`https://github-dev-card-generator.onrender.com/github/${username}`);
 
         const data = await response.json();
 
         // REPOSITORIES
         const repoResponse =
-        await fetch(`https://api.github.com/users/${username}/repos`);
+        await fetch(`https://github-dev-card-generator.onrender.com/repos/${username}`);
 
         const repoData = await repoResponse.json();
 
-        const card =
-        document.getElementById("card");
-
+        // ERROR CHECK
         if(data.error){
 
             card.innerHTML = `
                 <h2 style="text-align:center;">
-                    User Not Found
+                    Backend sleeping. Wait 30 seconds and try again.
                 </h2>
             `;
 
             return;
         }
 
-        // =========================
         // LANGUAGE CALCULATION
-        // =========================
-
         let languageCount = {};
 
-        repoData.forEach(repo => {
+        if(Array.isArray(repoData)){
 
-            if(repo.language){
+            repoData.forEach(repo => {
 
-                if(languageCount[repo.language]){
+                if(repo.language){
 
-                    languageCount[repo.language]++;
+                    if(languageCount[repo.language]){
 
-                }else{
+                        languageCount[repo.language]++;
 
-                    languageCount[repo.language] = 1;
+                    }else{
+
+                        languageCount[repo.language] = 1;
+
+                    }
 
                 }
 
-            }
+            });
 
-        });
+        }
 
         const totalLanguages =
         Object.values(languageCount)
@@ -93,64 +108,62 @@ async function generateCard() {
 
         });
 
-        // =========================
-        // REPOSITORIES
-        // =========================
-
+        // TOP REPOS
         let repoHTML = "";
 
-        repoData
-        .sort((a,b) =>
-            b.stargazers_count - a.stargazers_count
-        )
-        .slice(0,5)
-        .forEach(repo => {
+        if(Array.isArray(repoData)){
 
-            repoHTML += `
+            repoData
+            .sort((a,b) =>
+                b.stargazers_count - a.stargazers_count
+            )
+            .slice(0,5)
+            .forEach(repo => {
 
-            <div class="repo-card">
+                repoHTML += `
 
-                <a href="${repo.html_url}" target="_blank">
+                <div class="repo-card">
 
-                    <i class="fa-solid fa-code-branch"></i>
+                    <a href="${repo.html_url}" target="_blank">
 
-                    ${repo.name}
+                        <i class="fa-solid fa-code-branch"></i>
 
-                </a>
+                        ${repo.name}
 
-                <p>
-                    ${repo.description || "No description"}
-                </p>
+                    </a>
 
-                <p style="margin-top:10px;color:#58a6ff;">
+                    <p>
+                        ${repo.description || "No description"}
+                    </p>
 
-                    <i class="fa-solid fa-star"></i>
-                    ${repo.stargazers_count}
+                    <p style="margin-top:10px;color:#58a6ff;">
 
-                    &nbsp;&nbsp;
+                        <i class="fa-solid fa-star"></i>
+                        ${repo.stargazers_count}
 
-                    <i class="fa-solid fa-code"></i>
-                    ${repo.language || "Unknown"}
+                        &nbsp;&nbsp;
 
-                </p>
+                        <i class="fa-solid fa-code"></i>
+                        ${repo.language || "Unknown"}
 
-            </div>
+                    </p>
 
-            `;
+                </div>
 
-        });
+                `;
 
-        // =========================
+            });
+
+        }
+
         // FINAL CARD
-        // =========================
-
         card.innerHTML = `
 
         <div class="card" id="downloadCard">
 
             <div class="profile-top">
 
-                <img src="${data.avatar || 'https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png'}" />
+                <img src="${data.avatar}" />
 
                 <div class="profile-info">
 
@@ -159,15 +172,11 @@ async function generateCard() {
                     </h2>
 
                     <p class="username">
-
                         @${data.username}
-
                     </p>
 
                     <p class="bio">
-
                         ${data.bio || "No bio available"}
-
                     </p>
 
                 </div>
@@ -176,48 +185,45 @@ async function generateCard() {
 
             <div class="stats">
 
-                <<a 
+                <a 
                 href="${data.profile_url}?tab=repositories"
                 target="_blank"
                 style="text-decoration:none;color:white;flex:1;"
                 >
 
-    <div class="stat-box">
+                    <div class="stat-box">
 
-        <h3>${data.public_repos}</h3>
+                        <h3>${data.public_repos}</h3>
 
-        <p>Repositories</p>
+                        <p>Repositories</p>
 
-    </div>
+                    </div>
 
-</a>
+                </a>
 
-              <a 
-            href="${data.profile_url}?tab=followers"
-            target="_blank"
-            style="text-decoration:none;color:white;flex:1;"
-            >
+                <a 
+                href="${data.profile_url}?tab=followers"
+                target="_blank"
+                style="text-decoration:none;color:white;flex:1;"
+                >
 
-    <div class="stat-box">
+                    <div class="stat-box">
 
-        <h3>${data.followers}</h3>
+                        <h3>${data.followers}</h3>
 
-        <p>Followers</p>
+                        <p>Followers</p>
 
-    </div>
+                    </div>
 
-</a>
+                </a>
 
             </div>
 
             <div class="languages">
 
                 <h3>
-
                     <i class="fa-solid fa-chart-simple"></i>
-
                     Languages Used
-
                 </h3>
 
                 ${languageHTML}
@@ -227,11 +233,8 @@ async function generateCard() {
             <div class="repo-section">
 
                 <h3>
-
                     <i class="fa-solid fa-code"></i>
-
                     Top Projects
-
                 </h3>
 
                 ${repoHTML}
@@ -243,7 +246,6 @@ async function generateCard() {
                 <a href="${data.profile_url}" target="_blank">
 
                     <i class="fa-brands fa-github"></i>
-
                     Profile
 
                 </a>
@@ -251,7 +253,6 @@ async function generateCard() {
                 <button onclick="downloadCard()">
 
                     <i class="fa-solid fa-download"></i>
-
                     Download
 
                 </button>
@@ -259,7 +260,6 @@ async function generateCard() {
                 <button onclick="shareProfile('${data.profile_url}')">
 
                     <i class="fa-solid fa-share-nodes"></i>
-
                     Share
 
                 </button>
@@ -274,44 +274,26 @@ async function generateCard() {
 
         console.log(error);
 
-        alert("Backend connection error");
+        document.getElementById("card").innerHTML = `
+            <h2 style="text-align:center;">
+                Backend Error. Render server may be sleeping.
+            </h2>
+        `;
 
     }
 
 }
 
-// =========================
-// DOWNLOAD HD IMAGE
-// =========================
-
+// DOWNLOAD
 function downloadCard(){
 
     const originalCard =
     document.getElementById("downloadCard");
 
-    // Create export clone
-    const clone =
-    originalCard.cloneNode(true);
-
-    // Clean export styles
-    clone.style.position = "fixed";
-    clone.style.top = "-9999px";
-    clone.style.left = "-9999px";
-    clone.style.width = "900px";
-    clone.style.background = "#111827";
-    clone.style.backdropFilter = "none";
-    clone.style.webkitBackdropFilter = "none";
-    clone.style.filter = "none";
-    clone.style.opacity = "1";
-    clone.style.boxShadow = "none";
-
-    document.body.appendChild(clone);
-
-    html2canvas(clone,{
+    html2canvas(originalCard,{
         backgroundColor:"#111827",
         scale:4,
-        useCORS:true,
-        logging:false
+        useCORS:true
     }).then(canvas => {
 
         const link =
@@ -321,21 +303,15 @@ function downloadCard(){
         "github-dev-card.png";
 
         link.href =
-        canvas.toDataURL("image/png",1.0);
+        canvas.toDataURL("image/png");
 
         link.click();
-
-        // Remove clone
-        document.body.removeChild(clone);
 
     });
 
 }
 
-// =========================
 // SHARE
-// =========================
-
 function shareProfile(url){
 
     navigator.clipboard.writeText(url);
