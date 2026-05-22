@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import requests
+import os
 
 app = FastAPI()
 
@@ -28,12 +29,12 @@ def get_github_user(username: str):
 
     headers = {
         "Accept": "application/vnd.github+json",
-        "User-Agent": "github-card-generator"
+        "User-Agent": "github-card-generator",
+        "Authorization": f"token {os.getenv('GITHUB_TOKEN')}"
     }
 
     response = requests.get(url, headers=headers)
 
-    # DEBUG
     print("GitHub Status:", response.status_code)
 
     if response.status_code != 200:
@@ -62,7 +63,8 @@ def get_repositories(username: str):
 
     headers = {
         "Accept": "application/vnd.github+json",
-        "User-Agent": "github-card-generator"
+        "User-Agent": "github-card-generator",
+        "Authorization": f"token {os.getenv('GITHUB_TOKEN')}"
     }
 
     response = requests.get(url, headers=headers)

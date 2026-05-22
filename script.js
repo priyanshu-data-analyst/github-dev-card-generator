@@ -23,7 +23,7 @@ async function generateCard() {
 
         // USER PROFILE
         const response =
-        await fetch(`http://127.0.0.1:8000/github/${username}`);
+        await fetch(`https://github-dev-card-generator.onrender.com/github/${username}`);
 
         if (!response.ok) {
 
